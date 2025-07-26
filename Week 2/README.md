@@ -2,3 +2,10 @@
 
 ## Step 1: Tokenization
 
+We first create a full tokenizer class which would implement two methods: tokenization of the text (encoding) and an inverse operation to bring back the text (decoding).
+
+1. The training data is split into a list of tokens (not yet numbered). These may include words, punctuation marks, whitespaces (this is optional) etc.
+2. A __vocabulary__ is built which arranges __unique__ words from the training set in alphabetical order and indexes them in that order. The indices are called __token IDs__.
+3. Two extra tokens, __<|unk|>__ and __<|endoftext|>__ are added to the end of the vocabulary. These are __special context__ tokens; <|unk|> (unknown) is for a word not found in the vocabulary and <|endoftext|> is used to separate different sources/blocks of text (we may be feeding multiple sources to the training model together).
+
+There also exist other types of special context tokens, such as __[BOS]__ (beginning of sequence), __[EOS]__ (end of sequence) and __[PAD]__ (padding to make batch sizes of texts equal). GPT models only use <|endoftext|>.
