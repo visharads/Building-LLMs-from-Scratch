@@ -1,5 +1,6 @@
 # Week 2
 
+All content is taken from Vizuara AI's YouTube playlist '[Building LLMs from Scratch](https://youtube.com/playlist?list=PLPTV0NXA_ZSgsLAr8YCgCwhPIJNNtexWu&si=HPSZqC8bKeJmPCje)'.
 
 ## Step 1: Tokenization
 
@@ -54,24 +55,49 @@ XdXac       --
 
 This algorithm is useful in LLMs because it will ensure that all frequently used words are assigned a single token (and character-based encoding may subsequently follow; making tokenization easier since subword tokenization may be harder to implement).
 
-### Implementing BPE in LLMs
+### Modified BPE Algorithm in LLMs
+
+__Note__: The algorithm focuses more on introducing more tokens starting off from character based tokenization rather than splitting words into subwords.
 
 Consider the example `["old":9 , "older":3 , "finest":9 , "lowest":4]` (number infront of the colon indicates the number of occurences of that word in the dataset). This is the dataset to be tokenized.
 1. Preprocessing: We need to add an end token `</w>` at the end of each word: `["old</w>":9 , "older</w>":3 , "finest</w>":9 , "lowest</w>":4]`
-2. We will now create a frequency table for each character.
+2. We will now create a frequency table for each token; we shall assume character based encoding.
 
-| Character | Frequency |
-| --------- | --------- |
-| `</w>`    | 23        |
-| o         | 14        |
-| l         | 14        |
-| d         | 10        |
-| e         | 16        |
-| r         | 3         |
-| f         | 9         |
-| i         | 9         |
-| n         | 9         |
-| s         | 13        |
-| t         | 13        |
-| w         | 4         |
+| Token       | Frequency | Token       | Frequency | Token       | Frequency |
+|-----------  |-----------|-----------  |-----------|-----------  |-----------|
+| `</w>`      | 23        | `f`         | 9         | `s`         | 13        |
+| `o`         | 14        | `i`         | 9         | `t`         | 13        |
+| `l`         | 14        | `n`         | 9         | `w`         | 4         |
+| `d`         | 10        | `r`         | 3         | `e`         | 16        |
 
+3. We will now use two frequently occuring tokens (here `e` and `s`) and create a new token `es` (prioritizing this over the individual tokens `e` and `s`). Note how `s` has 0 occurences now (_it is still a token!_):
+
+| Token       | Frequency | Token       | Frequency | Token       | Frequency |
+|-----------  |-----------|-----------  |-----------|-----------  |-----------|
+| `</w>`      | 23        | `f`         | 9         | `es`        | 13        |
+| `o`         | 14        | `i`         | 9         | `t`         | 13        |
+| `l`         | 14        | `n`         | 9         | `w`         | 4         |
+| `d`         | 10        | `r`         | 3         | `e`         | 3         |
+| `s`         | 0         |             |           |             |           |
+
+
+4. We repeat this process until we reach a predefined limit such as:
+    - The token count.
+    - The number of iterations.
+    
+The final tokens for our example are:
+
+| Token       | Frequency | Token       | Frequency | Token       | Frequency |
+|-----------  |-----------|-----------  |-----------|-----------  |-----------|
+| `</w>`      | 10        | `r`         | 3         | `w`         | 4         |
+| `o`         | 4         | `f`         | 9         | `est</w>`   | 13        |
+| `l`         | 4         | `i`         | 9         | `old`       | 10        |
+| `e`         | 3         | `n`         | 9         |             |           |
+
+We did not create a token for `fin` because it only occured in one word.
+
+__Advantage__: This method handles unknown words without the <|unk|> token effortlessly; all 26 English letters are still present as tokens.
+
+### Input-Target Pairs
+
+For a given input to 
